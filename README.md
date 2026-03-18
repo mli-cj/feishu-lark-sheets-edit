@@ -53,6 +53,10 @@ Once installed, use `/feishu-lark-sheets-edit` in any OpenClaw session.
 - Feishu/Lark app credentials in `~/.openclaw/openclaw.json` (under `channels.feishu`)
 - The app must have Sheets read & write permissions and Drive file download permissions enabled
 
+## Security & Credentials
+
+This skill reads `appId` and `appSecret` from `~/.openclaw/openclaw.json` (`channels.feishu`) to obtain Lark/Feishu API access tokens. Credentials are only sent to official Feishu/Lark OpenAPI endpoints for token exchange — they are never logged, cached, or sent elsewhere.
+
 ## Files
 
 | File | Purpose |

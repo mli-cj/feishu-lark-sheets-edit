@@ -1,6 +1,6 @@
-# Lark/Feishu Sheets OpenAPI Reference
+# Lark/Feishu Sheets & Drive OpenAPI Reference
 
-Quick reference for the Sheets APIs used by this skill.
+Quick reference for the Sheets and Drive APIs used by this skill.
 
 ---
 
@@ -107,6 +107,27 @@ Response includes the new `sheetId` in `data.replies[0].addSheet.properties.shee
 
 ---
 
+## Drive Operations
+
+### Download File
+
+```
+GET /open-apis/drive/v1/files/{file_token}/download
+```
+
+- Response is binary file content (not JSON).
+- The app/bot must have access to the file (shared to the app).
+
+### Extracting file token from URL
+
+```
+https://xxx.larksuite.com/file/YOUR_FILE_TOKEN
+                                ^^^^^^^^^^^^^^^
+                                file_token
+```
+
+---
+
 ## URL Patterns
 
 ### Feishu (China)
@@ -124,9 +145,9 @@ Sheet URL: https://xxx.larksuite.com/sheets/{spreadsheet_token}?sheet={sheetId}
 ### Extracting tokens from URL
 
 ```
-https://xxx.larksuite.com/sheets/YOUR_SPREADSHEET_TOKEN?sheet=v8Yh4e
-                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^       ^^^^^^
-                                  spreadsheet_token                 sheetId
+https://xxx.larksuite.com/sheets/YOUR_SPREADSHEET_TOKEN?sheet=SHEET_ID
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^    ^^^^^^^^
+                                  spreadsheet_token            sheetId
 ```
 
 ---
