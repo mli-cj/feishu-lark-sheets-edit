@@ -56,8 +56,50 @@ Once installed, use `/feishu-lark-sheets-edit` in any OpenClaw session.
 
 - `python3` + `pip` on PATH
 - Feishu/Lark app credentials in `~/.openclaw/openclaw.json` (under `channels.feishu`)
-- The app must have Sheets read & write permissions and Drive file download permissions enabled
+- The app must have the required API permissions enabled in the Feishu/Lark developer console (see below)
 - PDF extraction: `pdfplumber`, `pypdf`, `pymupdf` are auto-installed via pip on first use, no system dependencies needed
+
+## App Permissions (开发者后台权限配置)
+
+在飞书/Lark 开发者后台 → 应用 → 权限管理中，需要开通以下权限：
+
+### 电子表格 (Sheets)
+
+| 权限 Scope | 说明 | 用于 |
+|------------|------|------|
+| `sheets:spreadsheet` | 查看、编辑和管理电子表格 | 读写单元格、添加/管理工作表 |
+
+或使用更宽的云空间权限：
+
+| 权限 Scope | 说明 | 用于 |
+|------------|------|------|
+| `drive:drive` | 查看、编辑和管理云空间中所有文件 | 包含 Sheets 读写 + 文件下载 |
+
+> 只读场景可用 `sheets:spreadsheet:readonly` 或 `drive:drive:readonly`。
+
+### 云文档文件下载 (Drive File Download)
+
+开通以下任一权限即可：
+
+| 权限 Scope | 说明 |
+|------------|------|
+| `drive:drive` | 查看、编辑和管理云空间中所有文件（最宽） |
+| `drive:drive:readonly` | 查看、评论和下载所有文件 |
+| `drive:file` | 上传和下载文件 |
+| `drive:file:readonly` | 查看和下载文件 |
+| `drive:file:download` | 仅下载文件（最小权限） |
+
+### 推荐最小权限组合
+
+| 使用场景 | 需要的 Scope |
+|---------|-------------|
+| 只读电子表格 | `sheets:spreadsheet:readonly` |
+| 读写电子表格 | `sheets:spreadsheet` |
+| 只下载文件 | `drive:file:download` |
+| 读写表格 + 下载文件 | `sheets:spreadsheet` + `drive:file:download` |
+| 全部功能（最简单） | `drive:drive` |
+
+> **注意：** 除了开通权限，还需将目标电子表格/文件共享给应用（机器人）身份，应用才能访问。
 
 ## Security & Credentials
 

@@ -5,7 +5,7 @@ user-invocable: true
 metadata: {"clawdbot": {"requires": {"bins": ["python3"]}, "os": ["darwin", "linux", "win32"], "files": ["scripts/sheets_export.py", "scripts/sheets_write.py", "scripts/file_download.py"], "reads": ["~/.openclaw/openclaw.json"], "note": "Reads appId/appSecret from ~/.openclaw/openclaw.json to obtain Lark/Feishu API tokens. PDF extraction auto-installs pdfplumber/pypdf/pymupdf via pip as needed, no system dependencies required."}}
 ---
 
-# Lark/Feishu Sheets & File Download
+# Lark/Feishu Sheets & Cloud File Download (with PDF extraction)
 
 Read, write and manage Lark/Feishu Sheets, and download Lark/Feishu cloud files, by calling the official OpenAPI from local scripts.
 
