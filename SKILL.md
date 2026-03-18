@@ -2,7 +2,7 @@
 name: feishu_lark_sheets_edit
 description: "Read, write and manage Lark/Feishu Sheets (spreadsheets) and download Lark/Feishu cloud files via Lark OpenAPI. Reads Feishu app credentials (appId/appSecret) from ~/.openclaw/openclaw.json to authenticate with the Lark OpenAPI. Use when a user provides a Lark/Feishu sheet link (URL path like /sheets/TOKEN) and you need to fetch cell values, write/update cells, add/clone sheet tabs, convert to CSV/JSON, or feed the data into summaries/reports/analysis. Also use when a user provides a Lark/Feishu file link (URL path like /file/TOKEN) and needs to download the file (PDF, etc.) locally. Triggers: 'feishu sheet', 'lark sheet', 'spreadsheet', 'write to sheet', 'update sheet', 'export sheet', 'feishu file', 'lark file', 'download file', 'feishu download', 'lark download', 'cloud file'."
 user-invocable: true
-metadata: {"clawdbot": {"requires": {"bins": ["python3"]}, "os": ["darwin", "linux", "win32"], "files": ["scripts/sheets_export.py", "scripts/sheets_write.py", "scripts/file_download.py"], "reads": ["~/.openclaw/openclaw.json"], "note": "Reads appId/appSecret from ~/.openclaw/openclaw.json to obtain Lark/Feishu API tokens. PDF text/image extraction uses pypdf (auto-installed via pip if missing), no system dependencies required."}}
+metadata: {"clawdbot": {"requires": {"bins": ["python3"]}, "os": ["darwin", "linux", "win32"], "files": ["scripts/sheets_export.py", "scripts/sheets_write.py", "scripts/file_download.py"], "reads": ["~/.openclaw/openclaw.json"], "note": "Reads appId/appSecret from ~/.openclaw/openclaw.json to obtain Lark/Feishu API tokens. PDF extraction auto-installs pdfplumber/pypdf/pymupdf via pip as needed, no system dependencies required."}}
 ---
 
 # Lark/Feishu Sheets & File Download
@@ -134,18 +134,24 @@ python3 {baseDir}/scripts/file_download.py \
 
 When `--out` ends with `.pdf`, the script **automatically**:
 1. Extracts text to a `.txt` file (e.g. `/tmp/report.pdf` → `/tmp/report.txt`)
-2. Extracts images to a `_images/` directory (e.g. `/tmp/report_images/img-000.png`, ...)
+2. Extracts embedded images to a `_images/` directory (e.g. `/tmp/report_images/img-000.png`, ...)
+3. **If text is garbled/unreadable**, renders each page as a PNG image to `_pages/` directory for visual reading
 
-Text and image extraction uses `pypdf` (pure Python, auto-installed via pip if missing). Falls back to poppler (`pdftotext`/`pdfimages`) or a built-in extractor if pypdf fails. **No system-level dependencies required.**
+**Text extraction priority:** `pdfplumber` → `pypdf` → `pdftotext` (poppler). All Python packages are auto-installed via pip on first use. Includes garbled-text detection — if extracted text is unreadable (e.g. scanned PDF, special fonts), pages are rendered to images automatically.
+
+**Image extraction priority:** `pypdf` → `pdfimages` (poppler).
+
+**Page rendering (garbled fallback):** `pymupdf` → `pdf2image`.
 
 The typical workflow is:
 
-1. Run the download script → produces `/tmp/report.pdf` + `/tmp/report.txt` + `/tmp/report_images/*.png`
-2. Read `/tmp/report.txt` with the `Read` tool for text content
-3. Read image files with the `Read` tool to view charts, diagrams, etc.
-4. Summarize / analyze the content
+1. Run the download script
+2. If text is readable → read `/tmp/report.txt` with the `Read` tool
+3. If text is garbled → read page images in `/tmp/report_pages/` with the `Read` tool (AI vision)
+4. Read embedded images in `/tmp/report_images/` for charts, diagrams, etc.
+5. Summarize / analyze the content
 
-For non-PDF files, use `--extract-text` to force text and image extraction.
+For non-PDF files, use `--extract-text` to force extraction.
 
 ---
 

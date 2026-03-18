@@ -10,7 +10,8 @@
 - **Clone** an existing sheet tab's values into a new tab
 - **List** all sheet tabs in a spreadsheet
 - **Download** cloud files (PDF, documents, etc.) from Lark/Feishu Drive
-- **Extract** text and images from downloaded PDFs automatically (via pypdf, zero system dependencies)
+- **Extract** text and images from downloaded PDFs automatically (pdfplumber + pypdf, auto pip-installed)
+- **Garbled PDF fallback**: renders pages to images for AI visual reading (scanned docs, special fonts)
 
 ## Installation
 
@@ -56,7 +57,7 @@ Once installed, use `/feishu-lark-sheets-edit` in any OpenClaw session.
 - `python3` + `pip` on PATH
 - Feishu/Lark app credentials in `~/.openclaw/openclaw.json` (under `channels.feishu`)
 - The app must have Sheets read & write permissions and Drive file download permissions enabled
-- PDF extraction: `pypdf` is auto-installed via pip on first use, no system dependencies needed
+- PDF extraction: `pdfplumber`, `pypdf`, `pymupdf` are auto-installed via pip on first use, no system dependencies needed
 
 ## Security & Credentials
 
