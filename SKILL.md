@@ -1,13 +1,13 @@
 ---
 name: feishu_lark_sheets_edit
-description: "Read, write and manage Lark/Feishu Sheets (spreadsheets) via Lark OpenAPI. Reads Feishu app credentials (appId/appSecret) from ~/.openclaw/openclaw.json to authenticate with the Lark OpenAPI. Use when a user provides a Lark/Feishu sheet link (URL path like /sheets/TOKEN) and you need to fetch cell values, write/update cells, add/clone sheet tabs, convert to CSV/JSON, or feed the data into summaries/reports/analysis. Triggers: 'feishu sheet', 'lark sheet', 'spreadsheet', 'write to sheet', 'update sheet', 'export sheet'."
+description: "Read, write and manage Lark/Feishu Sheets (spreadsheets) and download Lark/Feishu cloud files via Lark OpenAPI. Reads Feishu app credentials (appId/appSecret) from ~/.openclaw/openclaw.json to authenticate with the Lark OpenAPI. Use when a user provides a Lark/Feishu sheet link (URL path like /sheets/TOKEN) and you need to fetch cell values, write/update cells, add/clone sheet tabs, convert to CSV/JSON, or feed the data into summaries/reports/analysis. Also use when a user provides a Lark/Feishu file link (URL path like /file/TOKEN) and needs to download the file (PDF, etc.) locally. Triggers: 'feishu sheet', 'lark sheet', 'spreadsheet', 'write to sheet', 'update sheet', 'export sheet', 'feishu file', 'lark file', 'download file', 'feishu download', 'lark download', 'cloud file'."
 user-invocable: true
-metadata: {"clawdbot": {"requires": {"bins": ["python3"]}, "os": ["darwin", "linux", "win32"], "files": ["scripts/sheets_export.py", "scripts/sheets_write.py"]}}
+metadata: {"clawdbot": {"requires": {"bins": ["python3"]}, "os": ["darwin", "linux", "win32"], "files": ["scripts/sheets_export.py", "scripts/sheets_write.py", "scripts/file_download.py"]}}
 ---
 
-# Lark/Feishu Sheets (read + write)
+# Lark/Feishu Sheets & File Download
 
-Read, write and manage Lark/Feishu Sheets by calling the official OpenAPI from local scripts.
+Read, write and manage Lark/Feishu Sheets, and download Lark/Feishu cloud files, by calling the official OpenAPI from local scripts.
 
 ## Prerequisites
 
@@ -24,18 +24,18 @@ Read, write and manage Lark/Feishu Sheets by calling the official OpenAPI from l
     }
   }
   ```
-- The Feishu/Lark app must have **Sheets read & write** permissions enabled in the developer console.
-- The target spreadsheet must be shared with the app/bot identity.
+- The Feishu/Lark app must have **Sheets read & write** permissions and **Drive file download** permissions enabled in the developer console.
+- The target spreadsheet/file must be shared with the app/bot identity.
 
 ## Quick Start
 
 ### Get spreadsheet token from the URL
 
 Example URL:
-`https://.../sheets/YOUR_SPREADSHEET_TOKEN?sheet=v8Yh4e`
+`https://.../sheets/YOUR_SPREADSHEET_TOKEN?sheet=SHEET_ID`
 
 - `spreadsheet_token` = `YOUR_SPREADSHEET_TOKEN`
-- `sheet` query param (often a sheetId) = `v8Yh4e`
+- `sheet` query param (often a sheetId) = `SHEET_ID`
 
 ### Read / Export
 
@@ -43,13 +43,13 @@ Example URL:
 # Export a single range to CSV
 python3 {baseDir}/scripts/sheets_export.py \
   --token YOUR_SPREADSHEET_TOKEN \
-  --range 'v8Yh4e!A1:Z200' \
+  --range 'SHEET_ID!A1:Z200' \
   --csv /tmp/sheet.csv
 
 # Or export to JSON (recommended for multi-range)
 python3 {baseDir}/scripts/sheets_export.py \
-  --url 'https://xxx.larksuite.com/sheets/YOUR_SPREADSHEET_TOKEN?sheet=v8Yh4e' \
-  --range 'v8Yh4e!A1:Z200' \
+  --url 'https://xxx.larksuite.com/sheets/YOUR_SPREADSHEET_TOKEN?sheet=SHEET_ID' \
+  --range 'SHEET_ID!A1:Z200' \
   --json /tmp/sheet.json
 ```
 
@@ -94,9 +94,52 @@ Both scripts accept `--url` to auto-extract the spreadsheet token:
 
 ```bash
 python3 {baseDir}/scripts/sheets_write.py \
-  --url 'https://xxx.larksuite.com/sheets/YOUR_SPREADSHEET_TOKEN?sheet=v8Yh4e' \
-  write --range 'v8Yh4e!A1:B1' --values '[["hello","world"]]'
+  --url 'https://xxx.larksuite.com/sheets/YOUR_SPREADSHEET_TOKEN?sheet=SHEET_ID' \
+  write --range 'SHEET_ID!A1:B1' --values '[["hello","world"]]'
 ```
+
+---
+
+## File Download
+
+Download cloud files (PDF, documents, etc.) from Lark/Feishu Drive.
+
+### Get file token from the URL
+
+Example URL:
+`https://.../file/YOUR_FILE_TOKEN`
+
+- `file_token` = `YOUR_FILE_TOKEN`
+
+### Download a file
+
+```bash
+# Download by URL
+python3 {baseDir}/scripts/file_download.py \
+  --url "https://.../file/YOUR_FILE_TOKEN" \
+  --out /tmp/report.pdf
+
+# Download by file token directly
+python3 {baseDir}/scripts/file_download.py \
+  --file-token YOUR_FILE_TOKEN \
+  --out /tmp/report.pdf
+```
+
+### Reading downloaded PDF files
+
+After downloading, use the `Read` tool to read the PDF content directly:
+
+```
+Read file: /tmp/report.pdf
+```
+
+For large PDFs (more than 10 pages), specify a page range to avoid exceeding limits:
+
+```
+Read file: /tmp/report.pdf  pages: "1-10"
+```
+
+The typical workflow is: **download the file → read it with the Read tool → summarize/analyze the content**.
 
 ---
 
@@ -127,8 +170,8 @@ All subcommands support `--dry-run` to preview without executing.
 ## Troubleshooting
 
 - **403 / permission errors:**
-  - Confirm the sheet has been shared with the app/bot identity.
-  - Confirm the Lark/Feishu app has Sheets **read and write** permissions enabled in the developer console.
+  - Confirm the sheet/file has been shared with the app/bot identity.
+  - Confirm the Lark/Feishu app has the required permissions (Sheets read & write, Drive file download) enabled in the developer console.
 - **`values_batch_get failed` / `values_batch_update failed` with non-zero code:**
   - Most often a bad range string. Try a smaller range or verify the sheetId/title via `list-sheets`.
 - **`addSheet failed`:**
@@ -147,6 +190,7 @@ This skill makes outbound requests to the following Lark/Feishu OpenAPI endpoint
 | `https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/*/values_batch_get` | Read cell values |
 | `https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/*/values_batch_update` | Write cell values |
 | `https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/*/sheets_batch_update` | Add/manage sheet tabs |
+| `https://open.feishu.cn/open-apis/drive/v1/files/*/download` | Download file content |
 
 For Lark (international) users, the base URL is `https://open.larksuite.com` instead.
 

@@ -1,6 +1,6 @@
 # feishu-lark-sheets-edit
 
-> OpenClaw skill — Read, write and manage Lark/Feishu Sheets via OpenAPI.
+> OpenClaw skill — Read, write and manage Lark/Feishu Sheets, and download Lark/Feishu cloud files via OpenAPI.
 
 ## What it does
 
@@ -9,6 +9,7 @@
 - **Add** new sheet tabs to a spreadsheet
 - **Clone** an existing sheet tab's values into a new tab
 - **List** all sheet tabs in a spreadsheet
+- **Download** cloud files (PDF, documents, etc.) from Lark/Feishu Drive
 
 ## Installation
 
@@ -28,26 +29,29 @@ Once installed, use `/feishu-lark-sheets-edit` in any OpenClaw session.
 
 ```
 # Read a sheet range to CSV
-/feishu-lark-sheets-edit export --token TOKEN --range 'SheetId!A1:Z200' --csv /tmp/out.csv
+/feishu-lark-sheets-edit export --token SPREADSHEET_TOKEN --range 'SHEET_ID!A1:Z200' --csv /tmp/out.csv
 
 # Write values to a range
-/feishu-lark-sheets-edit write --token TOKEN --range 'SheetId!A1:C2' --values '[["a","b","c"]]'
+/feishu-lark-sheets-edit write --token SPREADSHEET_TOKEN --range 'SHEET_ID!A1:C2' --values '[["a","b","c"]]'
 
 # List all sheet tabs
-/feishu-lark-sheets-edit list-sheets --token TOKEN
+/feishu-lark-sheets-edit list-sheets --token SPREADSHEET_TOKEN
 
 # Add a new sheet tab
-/feishu-lark-sheets-edit add-sheet --token TOKEN --title 'NewSheet'
+/feishu-lark-sheets-edit add-sheet --token SPREADSHEET_TOKEN --title 'NewSheet'
 
 # Clone a sheet
-/feishu-lark-sheets-edit clone-sheet --token TOKEN --source-sheet-id abc123 --title 'Copy'
+/feishu-lark-sheets-edit clone-sheet --token SPREADSHEET_TOKEN --source-sheet-id SOURCE_SHEET_ID --title 'Copy'
+
+# Download a cloud file
+/feishu-lark-sheets-edit download --url "https://.../file/YOUR_FILE_TOKEN" --out /tmp/report.pdf
 ```
 
 ## Requirements
 
 - `python3` on PATH
 - Feishu/Lark app credentials in `~/.openclaw/openclaw.json` (under `channels.feishu`)
-- The app must have Sheets read & write permissions enabled
+- The app must have Sheets read & write permissions and Drive file download permissions enabled
 
 ## Files
 
@@ -55,4 +59,5 @@ Once installed, use `/feishu-lark-sheets-edit` in any OpenClaw session.
 |------|---------|
 | `scripts/sheets_export.py` | Read/export ranges to CSV or JSON |
 | `scripts/sheets_write.py` | Write cells, add/clone sheet tabs |
+| `scripts/file_download.py` | Download cloud files from Lark/Feishu Drive |
 | `references/lark-sheets-api.md` | Lark Sheets OpenAPI reference |
