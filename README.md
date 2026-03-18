@@ -10,6 +10,7 @@
 - **Clone** an existing sheet tab's values into a new tab
 - **List** all sheet tabs in a spreadsheet
 - **Download** cloud files (PDF, documents, etc.) from Lark/Feishu Drive
+- **Extract** text and images from downloaded PDFs automatically (via pypdf, zero system dependencies)
 
 ## Installation
 
@@ -43,15 +44,19 @@ Once installed, use `/feishu-lark-sheets-edit` in any OpenClaw session.
 # Clone a sheet
 /feishu-lark-sheets-edit clone-sheet --token SPREADSHEET_TOKEN --source-sheet-id SOURCE_SHEET_ID --title 'Copy'
 
-# Download a cloud file
+# Download a cloud file (PDF auto-extracts text + images)
 /feishu-lark-sheets-edit download --url "https://.../file/YOUR_FILE_TOKEN" --out /tmp/report.pdf
+# → /tmp/report.pdf  (original)
+# → /tmp/report.txt  (extracted text)
+# → /tmp/report_images/  (extracted images)
 ```
 
 ## Requirements
 
-- `python3` on PATH
+- `python3` + `pip` on PATH
 - Feishu/Lark app credentials in `~/.openclaw/openclaw.json` (under `channels.feishu`)
 - The app must have Sheets read & write permissions and Drive file download permissions enabled
+- PDF extraction: `pypdf` is auto-installed via pip on first use, no system dependencies needed
 
 ## Security & Credentials
 
@@ -63,5 +68,5 @@ This skill reads `appId` and `appSecret` from `~/.openclaw/openclaw.json` (`chan
 |------|---------|
 | `scripts/sheets_export.py` | Read/export ranges to CSV or JSON |
 | `scripts/sheets_write.py` | Write cells, add/clone sheet tabs |
-| `scripts/file_download.py` | Download cloud files from Lark/Feishu Drive |
+| `scripts/file_download.py` | Download cloud files, auto-extract PDF text and images |
 | `references/lark-sheets-api.md` | Lark Sheets OpenAPI reference |
