@@ -2,7 +2,7 @@
 name: feishu_lark_sheets_edit
 description: "Read, write and manage Lark/Feishu Sheets (spreadsheets) and download Lark/Feishu cloud files via Lark OpenAPI. Reads Feishu app credentials (appId/appSecret) from ~/.openclaw/openclaw.json to authenticate with the Lark OpenAPI. Use when a user provides a Lark/Feishu sheet link (URL path like /sheets/TOKEN) and you need to fetch cell values, write/update cells, add/clone sheet tabs, convert to CSV/JSON, or feed the data into summaries/reports/analysis. Also use when a user provides a Lark/Feishu file link (URL path like /file/TOKEN) and needs to download the file (PDF, etc.) locally. Triggers: 'feishu sheet', 'lark sheet', 'spreadsheet', 'write to sheet', 'update sheet', 'export sheet', 'feishu file', 'lark file', 'download file', 'feishu download', 'lark download', 'cloud file'."
 user-invocable: true
-metadata: {"clawdbot": {"requires": {"bins": ["python3"]}, "os": ["darwin", "linux", "win32"], "files": ["scripts/sheets_export.py", "scripts/sheets_write.py", "scripts/file_download.py"], "reads": ["~/.openclaw/openclaw.json"], "note": "Reads appId/appSecret from ~/.openclaw/openclaw.json to obtain Lark/Feishu API tokens. No credentials are logged or stored elsewhere."}}
+metadata: {"clawdbot": {"requires": {"bins": ["python3"]}, "os": ["darwin", "linux", "win32"], "files": ["scripts/sheets_export.py", "scripts/sheets_write.py", "scripts/file_download.py"], "reads": ["~/.openclaw/openclaw.json"], "note": "Reads appId/appSecret from ~/.openclaw/openclaw.json to obtain Lark/Feishu API tokens. PDF text/image extraction uses pypdf (auto-installed via pip if missing), no system dependencies required."}}
 ---
 
 # Lark/Feishu Sheets & File Download
@@ -114,7 +114,7 @@ Example URL:
 ### Download a file
 
 ```bash
-# Download by URL
+# Download by URL (PDF files auto-extract text to .txt)
 python3 {baseDir}/scripts/file_download.py \
   --url "https://.../file/YOUR_FILE_TOKEN" \
   --out /tmp/report.pdf
@@ -123,23 +123,29 @@ python3 {baseDir}/scripts/file_download.py \
 python3 {baseDir}/scripts/file_download.py \
   --file-token YOUR_FILE_TOKEN \
   --out /tmp/report.pdf
+
+# Force text extraction for non-.pdf files
+python3 {baseDir}/scripts/file_download.py \
+  --file-token YOUR_FILE_TOKEN \
+  --out /tmp/document.bin --extract-text
 ```
 
-### Reading downloaded PDF files
+### Reading downloaded PDF content
 
-After downloading, use the `Read` tool to read the PDF content directly:
+When `--out` ends with `.pdf`, the script **automatically**:
+1. Extracts text to a `.txt` file (e.g. `/tmp/report.pdf` → `/tmp/report.txt`)
+2. Extracts images to a `_images/` directory (e.g. `/tmp/report_images/img-000.png`, ...)
 
-```
-Read file: /tmp/report.pdf
-```
+Text and image extraction uses `pypdf` (pure Python, auto-installed via pip if missing). Falls back to poppler (`pdftotext`/`pdfimages`) or a built-in extractor if pypdf fails. **No system-level dependencies required.**
 
-For large PDFs (more than 10 pages), specify a page range to avoid exceeding limits:
+The typical workflow is:
 
-```
-Read file: /tmp/report.pdf  pages: "1-10"
-```
+1. Run the download script → produces `/tmp/report.pdf` + `/tmp/report.txt` + `/tmp/report_images/*.png`
+2. Read `/tmp/report.txt` with the `Read` tool for text content
+3. Read image files with the `Read` tool to view charts, diagrams, etc.
+4. Summarize / analyze the content
 
-The typical workflow is: **download the file → read it with the Read tool → summarize/analyze the content**.
+For non-PDF files, use `--extract-text` to force text and image extraction.
 
 ---
 
